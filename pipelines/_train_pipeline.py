@@ -1,4 +1,4 @@
-import torch, tqdm, copy
+import torch, tqdm, copy, math
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 from ._base import BasePipeline
@@ -44,9 +44,10 @@ class TrainingPipeline(BasePipeline):
     def _feed(self, dataloader: DataLoader, mode: str, verbose: bool=False) -> Tuple[float, float, float]:
         assert mode in self._valid_modes(), "Invalid Mode"
         getattr(self.model, mode)()
+        pbar_total = math.ceil(len(dataloader.dataset) / dataloader.batch_size)
         loss, dice_score, hausdorff = 0, 0, 0
         
-        for idx, (images, gt_masks) in tqdm.tqdm(enumerate(dataloader), total=len(dataloader.dataset)):
+        for idx, (images, gt_masks) in tqdm.tqdm(enumerate(dataloader), total=pbar_total):
             images = images.to(self.device)                          # shape: (N, n_channels, H, W)
             gt_masks = gt_masks.to(self.device, dtype=torch.float32) # shape: (N, n_channels, H, W)    
                         
