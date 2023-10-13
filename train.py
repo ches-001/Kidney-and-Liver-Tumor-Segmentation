@@ -14,7 +14,7 @@ from pipelines import TrainingPipeline
 from seg_network import SegmentationNet
 from transforms import data_augmenter
 
-os.environ["SEED"] = 3047
+os.environ["SEED"] = "3047"
 os.environ["DEVICE"] = "cuda" if torch.cuda.is_available() else "cpu"
 nib.openers.HAVE_INDEXED_GZIP = True
 nib.arrayproxy.KEEP_FILE_OPEN_DEFAULT = True
