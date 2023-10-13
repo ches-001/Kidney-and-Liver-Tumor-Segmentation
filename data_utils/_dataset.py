@@ -39,7 +39,7 @@ class CTImageDataset(Dataset):
             
         else:
             sample_df = self.meta_df.iloc[idx]
-            img_path = sample_df["segment_path"]
+            img_path = sample_df["img_path"]
             segment_path = sample_df["segment_path"]
             slice_idx = int(sample_df["slice"].split("_")[-1])
 
