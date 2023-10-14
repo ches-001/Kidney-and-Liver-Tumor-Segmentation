@@ -178,6 +178,7 @@ def train(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Train Segmentation Network")
+    parser.add_argument("--total_samples", type=int, default=26_000, metavar="", help="total number of samples to split as train and test. (Values beyond 50_000 will be clamped to 50_000)")
     parser.add_argument("--train_size", type=float, default=0.9, metavar="", help="% train data size")
     parser.add_argument("--cache_size", type=int, default=55_000, metavar="", help="Number of sample pairs in cache memory")
     parser.add_argument("--img_size", type=int, default=256, metavar="", help="size of image data for (H and W)")
@@ -197,7 +198,7 @@ if __name__ == "__main__":
     segment_img_df.index = range(0, len(segment_img_df))
     data_df = pd.concat([segment_img_df, plain_img_df.sample(frac=15_000/plain_img_df.shape[0])], axis=0)
 
-    data_df = data_df.sample(frac=1.0)
+    data_df = data_df.sample(n=np.clip(args.total_samples, a_min=0, a_max=50_000))
     data_df.index = range(0, data_df.shape[0])
     del meta_df, plain_img_df, segment_img_df
     gc.collect()
