@@ -61,6 +61,7 @@ class CTImageDataset(Dataset):
             
             # convert from <f8> (float64) to int16 before caching to save memory
             img = img.astype(np.int16)
+            segment = segment.astype(np.uint8)
 
             # add to cache
             if self.cache_size > 0:
