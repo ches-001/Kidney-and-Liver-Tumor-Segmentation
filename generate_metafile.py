@@ -106,7 +106,7 @@ async def async_record(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Generate MetaFile")
-    parser.add_argument("--volume_first", type=int, default=1, choices=[0, 1], metavar="", help="load entire volume and then slice")
+    parser.add_argument("--volume_first", type=int, default=0, choices=[0, 1], metavar="", help="load entire volume and then slice")
     parser.add_argument("--n_concurrency", type=int, default=100, metavar="", help="number of concurrent coroutines to execute at a time")
 
     args = parser.parse_args()
