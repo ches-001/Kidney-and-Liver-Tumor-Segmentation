@@ -39,7 +39,7 @@ def create_dataset(
         train_data_size: float=0.9,
         transforms_kwargs: Dict[str, Any]={"add_noise": False},
         dataset_transform_kwargs: Dict[str, Any]={"p": 0.4},
-        volume_first: bool=True,
+        volume_first: bool=False,
     ) -> Tuple[CTImageDataset, CTImageDataset]:
 
     data_transforms = data_augmenter(**transforms_kwargs)
@@ -74,7 +74,7 @@ def train(
         *,
         batch_size: int=32,
         shuffle: bool=True,
-        num_workers: int=2,
+        num_workers: int=os.cpu_count(),
         loss_func_id: str="hybrid",
         bce_focal_weights: Tuple[float, float]=(0.2, 0.8),
         with_logits: bool=False,
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_size", type=float, default=0.9, metavar="", help="% train data size")
     parser.add_argument("--cache_size", type=int, default=55_000, metavar="", help="Number of sample pairs in cache memory")
     parser.add_argument("--img_size", type=int, default=256, metavar="", help="size of image data for (H and W)")
-    parser.add_argument("--volume_first", type=int, default=1, choices=[0, 1], metavar="", help="load entire volume and then slice")
+    parser.add_argument("--volume_first", type=int, default=0, choices=[0, 1], metavar="", help="load entire volume and then slice")
 
 
     args = parser.parse_args()
