@@ -63,6 +63,12 @@ class CTImageDataset(Dataset):
             img = img.astype(np.int16)
             segment = segment.astype(np.uint8)
 
+            # preprocess before storing in cache
+            img = torch.from_numpy(img).unsqueeze(dim=0)
+            segment = torch.from_numpy(segment).unsqueeze(dim=0)
+            img = img_resize(img, size=self.img_size)
+            segment = img_resize(segment, size=self.img_size)
+
             # add to cache
             if self.cache_size > 0:
                 if len(self.cache_memory) < self.cache_size:
@@ -72,11 +78,8 @@ class CTImageDataset(Dataset):
                     cache_keys = list(self.cache_memory.keys())
                     del self.cache_memory[cache_keys[0]]
 
-        img = torch.from_numpy(img).unsqueeze(dim=0)
-        segment = torch.from_numpy(segment).unsqueeze(dim=0)
+
         img = img_normalize(img)
-        img = img_resize(img, size=self.img_size)
-        segment = img_resize(segment, size=self.img_size)
 
         img_and_segment = torch.cat([img, segment], dim=0)
 
