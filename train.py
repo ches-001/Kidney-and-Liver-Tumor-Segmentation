@@ -74,7 +74,7 @@ def train(
         *,
         batch_size: int=32,
         shuffle: bool=True,
-        num_workers: int=os.cpu_count(),
+        num_workers: int=os.cpu_count() // 2,
         loss_func_id: str="hybrid",
         bce_focal_weights: Tuple[float, float]=(0.2, 0.8),
         with_logits: bool=False,
