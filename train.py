@@ -170,7 +170,10 @@ def train(
         pipeline.train(train_dataloader, verbose=train_verbosity)
         eval_loss, *_ = pipeline.evaluate(eval_dataloader, verbose=train_verbosity)
 
-        if eval_loss < best_loss: pipeline.save_model()
+        if eval_loss < best_loss: 
+            best_loss = eval_loss
+            pipeline.save_model()
+            
         lr_scheduler.step()
 
     if plot_metrics:
