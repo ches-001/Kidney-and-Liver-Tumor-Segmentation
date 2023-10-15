@@ -160,13 +160,17 @@ def train(
         verbose=verbose
     )
 
+    best_loss = np.inf
+    
     for epoch in range(epochs):  
         if (epoch) % log_train_step == 0:
             train_verbosity = verbose
         else:
             train_verbosity = False
         pipeline.train(train_dataloader, verbose=train_verbosity)
-        pipeline.evaluate(eval_dataloader, verbose=train_verbosity)
+        eval_loss, *_ = pipeline.evaluate(eval_dataloader, verbose=train_verbosity)
+
+        if eval_loss < best_loss: pipeline.save_model()
         lr_scheduler.step()
 
     if plot_metrics:

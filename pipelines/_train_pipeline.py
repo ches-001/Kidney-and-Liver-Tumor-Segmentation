@@ -80,4 +80,4 @@ class TrainingPipeline(BasePipeline):
         getattr(self, f"_{mode}_metrics_dict")["dice_score"].append(dice_score)
         getattr(self, f"_{mode}_metrics_dict")["hausdorff_distance"].append(hausdorff)
         
-        return loss, dice_score
+        return loss, dice_score, hausdorff
