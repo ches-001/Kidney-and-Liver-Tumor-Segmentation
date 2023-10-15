@@ -67,6 +67,7 @@ class TrainingPipeline(BasePipeline):
 
         loss /= (idx + 1)
         dice_score /= (idx + 1)
+        hausdorff /= (idx + 1)
 
         verbosity_label = mode.title()
         if verbose:
