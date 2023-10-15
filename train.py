@@ -173,7 +173,8 @@ def train(
         if eval_loss < best_loss: 
             best_loss = eval_loss
             pipeline.save_model()
-            
+            print(f"model saved at epoch: {epoch}")
+
         lr_scheduler.step()
 
     if plot_metrics:
