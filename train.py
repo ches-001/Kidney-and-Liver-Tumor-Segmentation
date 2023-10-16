@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import nibabel as nib
 from torch.utils.data import DataLoader
-from torchvision.models.resnet import BasicBlock, Bottleneck
+from torchvision.models import resnet
 from typing import Dict, Any, Tuple, Optional, Callable, List
 
 # custom modules
@@ -34,7 +34,7 @@ def create_dataset(
         train_df: pd.DataFrame,
         eval_df: pd.DataFrame,
         *,
-        img_size: Tuple[int, int]=(256, 256), 
+        img_size: Tuple[int, int]=(256, 256),
         cache_size: int=55_000, 
         train_data_size: float=0.9,
         transforms_kwargs: Dict[str, Any]={"add_noise": False},
@@ -77,7 +77,6 @@ def train(
         num_workers: int=os.cpu_count() // 2,
         loss_func_id: str="bce",
         bce_focal_weights: Tuple[float, float]=(0.3, 0.7),
-        with_logits: bool=False,
         label_smoothing: Optional[float]=None,
         loss_reduction: str="mean",
         alpha: float=0.25,
@@ -85,7 +84,7 @@ def train(
         input_channels: int=1,
         last_fmap_channels: int=512, #2048
         num_classes: int=3,
-        block: Callable=BasicBlock,
+        block: Callable=resnet.BasicBlock,
         block_layers: List=[3, 4, 6, 3],
         T_0: int=20,
         epochs: int=140,
@@ -119,7 +118,7 @@ def train(
     if loss_func_id == "hybrid":
         lossfunc = HybridBinaryEntropyLoss(
             bce_focal_weights=bce_focal_weights,
-            with_logits=with_logits,
+            with_logits=False,
             label_smoothing=label_smoothing,
             reduction=loss_reduction,
             focal_loss_kwargs={"alpha": alpha, "gamma": gamma}
@@ -128,15 +127,12 @@ def train(
         lossfunc = BinaryFocalLoss(
             alpha=alpha, 
             gamma=gamma, 
-            with_logits=with_logits, 
+            with_logits=False, 
             label_smoothing=label_smoothing, 
             reduction=loss_reduction
         )
     elif loss_func_id == "bce":
-        if not with_logits:
-            lossfunc = nn.BCELoss(reduction=loss_reduction)
-        else:
-            lossfunc = nn.BCEWithLogitsLoss(reduction=loss_reduction)
+        lossfunc = nn.BCELoss(reduction=loss_reduction)
     else:
         raise ValueError("loss_func_id can only be one of 'hybrid', 'focal', 'bce'")
 
@@ -167,6 +163,9 @@ def train(
     )
 
     best_loss = np.inf
+
+    if os.getenv("DEVICE") != "cpu":
+        print(f"Model is training on {torch.cuda.get_device_name()} \n")
     
     for epoch in range(epochs):  
         if (epoch) % log_train_step == 0:
@@ -192,11 +191,41 @@ def train(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Train Segmentation Network")
-    parser.add_argument("--total_samples", type=int, default=26_000, metavar="", help="total number of samples to split as train and test. (Values beyond 50_000 will be clamped to 50_000)")
-    parser.add_argument("--train_size", type=float, default=0.9, metavar="", help="% train data size")
+    parser.add_argument("--total_samples", type=int, default=26_000, metavar="", help="Total number of samples to split as train and test. (Values beyond 50_000 will be clamped to 50_000)")
+    parser.add_argument("--train_size", type=float, default=0.9, metavar="", help="% Train data size")
     parser.add_argument("--cache_size", type=int, default=55_000, metavar="", help="Number of sample pairs in cache memory")
-    parser.add_argument("--img_size", type=int, default=256, metavar="", help="size of image data for (H and W)")
-    parser.add_argument("--volume_first", type=int, default=0, choices=[0, 1], metavar="", help="load entire volume and then slice")
+    parser.add_argument("--img_size", type=int, default=224, metavar="", help="Size of image data for (H and W)")
+    parser.add_argument("--volume_first", type=int, default=int(False), choices=[0, 1], metavar="", help="Load entire volume and then slice")
+    parser.add_argument("--batch_size", type=int, default=32, metavar="", help="Model training batch size")
+    parser.add_argument("--shuffle", type=int, default=int(True), choices=[0, 1], metavar="", help="Shuffle training data in dataloader for each epoch")
+    parser.add_argument("--num_workers", type=int, default=os.cpu_count()//2, metavar="", help="Number of dataloader workers")
+    parser.add_argument("--loss_func_id", type=str, default="bce", metavar="", help="ID of loss function, one of ('bce', 'focal', 'hybrid')")
+    parser.add_argument("--w_bce", type=float, default=0.3, metavar="", help="Weight value of BCE loss when using hybrid loss")
+    parser.add_argument("--w_focal", type=float, default=0.7, metavar="", help="Weight value of focal loss when using hybrid loss")
+    parser.add_argument("--label_smoothing", type=float, default=0.0, metavar="", help="Label smoothing value")
+    parser.add_argument("--loss_reduction", type=str, default="mean", metavar="", help="Loss reduction value ('mean' or 'sum')")
+    parser.add_argument("--alpha", type=float, default=0.25, metavar="", help="alpha value for focal or hybrid loss")
+    parser.add_argument("--gamma", type=float, default=2.0, metavar="", help="gamma value for focal or hybrid loss")
+    parser.add_argument("--input_channels", type=int, default=1, metavar="", help="Model input channels")
+    parser.add_argument("--last_fmap_channels", type=int, default=512, metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
+    parser.add_argument("--num_classes", type=int, default=3, metavar="", help="Number of segmentation classes")
+    parser.add_argument("--block", type=str, default="BasicBlock", metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
+    parser.add_argument("--T_0", type=int, default=20, metavar="", help="Initial number of iterations for learning rate decay before warm restart")
+    parser.add_argument("--epochs", type=int, default=140, metavar="", help="Number of training epochs / cycles")
+    parser.add_argument("--lr", type=float, default=2e-4, metavar="", help="Learning rate")
+    parser.add_argument("--weight_decay", type=float, default=0.0, metavar="", help="Model weight decay value")
+    parser.add_argument("--min_lr", type=float, default=1e-6, metavar="", help="Minimum learning rate before warm restart")
+    parser.add_argument("--T_mult", type=int, default=2, metavar="", help="T_0 multiplier for each warm restart")
+    parser.add_argument("--xavier_weight_init", type=int, default=int(True), choices=[0, 1], metavar="", help="Xavier weight initialisation")
+    parser.add_argument("--combine_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Combine intractible metrics (Hausdorff distance and Dice Coefficient) with differentiable ones in training pipeline")
+    parser.add_argument("--w_hd", type=float, default=0.5, metavar="", help="Weight value of Hausdorff distance when 'combine_metrics' is True")
+    parser.add_argument("--w_dc", type=float, default=0.5, metavar="", help="Weight value of Dice coefficients when 'combine_metrics' is True")
+    parser.add_argument("--log_train_step", type=int, default=1, metavar="", help="Training info logging steps")
+    parser.add_argument("--verbose", type=int, default=int(True), choices=[0, 1], metavar="", help="Verbosity of training")
+    parser.add_argument("--plot_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Plots metrics if True")
+    parser.add_argument("--save_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Save metrics if True")
+
+
 
 
     args = parser.parse_args()
@@ -231,4 +260,34 @@ if __name__ == "__main__":
         volume_first=bool(args.volume_first)
     )
 
-    train(train_dataset, eval_dataset)
+    train(
+        train_dataset, 
+        eval_dataset, 
+        batch_size=args.batch_size, 
+        shuffle=bool(args.shuffle),
+        num_workers=args.num_workers,
+        loss_func_id=args.loss_func_id,
+        bce_focal_weights=(args.w_bce, args.w_focal),
+        label_smoothing=args.label_smoothing if args.label_smoothing != 0 else None,
+        loss_reduction=args.loss_reduction,
+        alpha=args.alpha,
+        gamma=args.gamma,
+        input_channels=args.input_channels,
+        last_fmap_channels=args.last_fmap_channels,
+        num_classes=args.num_classes,
+        block=getattr(resnet, args.block),
+        T_0=args.T_0,
+        epochs=args.epochs,
+        lr=args.lr,
+        weight_decay=args.weight_decay,
+        min_lr=args.min_lr,
+        T_mult=args.T_mult,
+        xavier_weight_init=bool(args.xavier_weight_init),
+        combine_metrics=bool(args.combine_metrics),
+        w_hd=args.w_hd,
+        w_dc=args.w_dc,
+        log_train_step=args.log_train_step,
+        verbose=bool(args.verbose),
+        plot_metrics=bool(args.plot_metrics),
+        save_metrics=bool(args.save_metrics),
+    )
