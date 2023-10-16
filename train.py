@@ -89,11 +89,14 @@ def train(
         block_layers: List=[3, 4, 6, 3],
         T_0: int=20,
         epochs: int=140,
-        lr: float=1e-3,
+        lr: float=2e-4,
         weight_decay: float=0.0,
         min_lr: float=1e-6,
         T_mult: int=2,
         xavier_weight_init: bool=True,
+        combine_metrics: bool=True,
+        w_hd: float=0.5,
+        w_dc: float=0.5,
         log_train_step: int=1,
         verbose: bool=True,
         plot_metrics: bool=True,
@@ -146,6 +149,9 @@ def train(
     )
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     pipeline = TrainingPipeline(
+        combine_metrics=combine_metrics,
+        w_hd=w_hd,
+        w_dc=w_dc,
         model=model, 
         optimizer=optimizer, 
         device=os.getenv("DEVICE"), 

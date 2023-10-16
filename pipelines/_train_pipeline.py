@@ -7,8 +7,14 @@ from typing import Tuple
 
 
 class TrainingPipeline(BasePipeline):
-    def __init__(self, **kwargs):
+    def __init__(self, combine_metrics: bool=True, w_hd: float=0.5, w_dc: float=0.5, **kwargs):
         super(TrainingPipeline, self).__init__(**kwargs)
+
+        assert w_hd + w_dc == 1, "sum of all w_hd and w_dc must equate to 1"
+
+        self.combine_metrics = combine_metrics
+        self.w_hd = w_hd # w_hd corresponds to weightage of hausdorff distance
+        self.w_dc = w_dc # w_dc corresponds to weightage of dice coefficent score
 
         # collect metrics in this dictionary
         self._train_metrics_dict = dict(
@@ -55,6 +61,12 @@ class TrainingPipeline(BasePipeline):
             batch_loss = self.lossfunc(pred_masks, gt_masks)
             batch_dice_score = dice_coeff(pred_masks, gt_masks)
             batch_hausdorff = hausdorff_distance(pred_masks, gt_masks)
+
+            if self.combine_metrics:
+                batch_loss = (
+                    (1 + batch_loss) * 
+                    (1 - (self.w_hd * (1 - batch_hausdorff)) + (self.w_dc * batch_dice_score))
+                )
             
             if mode == "train":
                 batch_loss.backward()

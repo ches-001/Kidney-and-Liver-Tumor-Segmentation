@@ -127,4 +127,3 @@ class HybridBinaryEntropyLoss(nn.Module):
 
         loss = (bce_w * bce) + (focal_w * fl)
         return loss
-

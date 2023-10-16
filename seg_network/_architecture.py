@@ -30,16 +30,16 @@ class EncoderHead(ResNet):
         #delete unwanted layers
         del self.maxpool, self.fc, self.avgpool
         
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        x = self.conv1(x)
-        x = self.bn1(x)
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        fmap1 = self.conv1(x)
+        x = self.bn1(fmap1)
         x = self.relu(x)
         x = self.layer1(x)
-        fmap1 = self.layer2(x)
-        fmap2 = self.layer3(fmap1)
-        fmap3 = self.layer4(fmap2)
+        fmap2 = self.layer2(x)
+        fmap3 = self.layer3(fmap2)
+        fmap4 = self.layer4(fmap3)
         
-        return fmap1, fmap2, fmap3
+        return fmap1, fmap2, fmap3, fmap4
     
 
 #______________________________________________________________________________________________
@@ -107,7 +107,7 @@ class SegmentationHead(nn.Module):
         self, 
         last_fmap_ch: int, 
         output_channels: int,
-        n_fmap: int=3):
+        n_fmap: int=4):
 
         super(SegmentationHead, self).__init__()
         
@@ -117,19 +117,17 @@ class SegmentationHead(nn.Module):
 
         self.residual_layers = self._make_layers()
 
-    def forward(self, fmaps: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]) -> torch.Tensor:
-        #fmaps(reversed): fmap3, fmap2, fmap1
+    def forward(self, fmaps: Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]) -> torch.Tensor:
+        #fmaps(reversed): fmap4, fmap3, fmap2, fmap1
         fmaps = [fmap for fmap in reversed(fmaps)]
 
         for idx, m in enumerate(self.residual_layers):
             if idx == 0:                                # at first layer
                 output = m(fmaps[idx], fmaps[idx+1])
                 continue
-
             if idx == len(self.residual_layers)-1:      # at final layer
                 output = m(output, None)
                 continue
-
             output = m(output, fmaps[idx+1])            # at middle layers
         return output
 
@@ -144,9 +142,13 @@ class SegmentationHead(nn.Module):
             out_ch = in_ch // 2
             upsample_scale = 2
 
+            if i == self.n_fmap - 2:
+                out_ch = 64
+                upsample_scale = 2
+
             if i == self.n_fmap - 1:
                 out_ch = self.output_channels
-                upsample_scale = 4
+                upsample_scale = 2
 
             layer = SegmentationBlock(
                 input_channels=in_ch, 
