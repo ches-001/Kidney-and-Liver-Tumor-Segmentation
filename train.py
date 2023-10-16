@@ -162,7 +162,7 @@ def train(
         verbose=verbose
     )
 
-    best_loss = np.inf
+    best_score = -np.inf
 
     if os.getenv("DEVICE") != "cpu":
         print(f"Model is training on {torch.cuda.get_device_name()} \n")
@@ -173,12 +173,15 @@ def train(
         else:
             train_verbosity = False
         pipeline.train(train_dataloader, verbose=train_verbosity)
-        eval_loss, *_ = pipeline.evaluate(eval_dataloader, verbose=train_verbosity)
+        _, eval_dice_score, eval_hausdorff = pipeline.evaluate(eval_dataloader, verbose=train_verbosity)
 
-        if eval_loss < best_loss: 
-            best_loss = eval_loss
+        # compute model saving metric
+        eval_score = (w_hd * (1 - eval_hausdorff)) + (w_dc * eval_dice_score)
+
+        if eval_score > best_score: 
+            best_score = eval_score
             pipeline.save_model()
-            print(f"model saved at epoch: {epoch}")
+            print(f"model saved at epoch: {epoch} with score value: {eval_score}")
 
         lr_scheduler.step()
 
