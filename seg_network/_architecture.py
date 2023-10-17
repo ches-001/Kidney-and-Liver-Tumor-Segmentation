@@ -153,7 +153,6 @@ class SegmentationHead(nn.Module):
                 out_ch = self.output_channels
                 upsample_scale = 2
 
-            print(in_ch, out_ch, upsample_scale)
             layer = SegmentationBlock(
                 input_channels=in_ch, 
                 output_channels=out_ch,
