@@ -1,7 +1,7 @@
 # Kidney Tumor Segmentation (Kits23 Dataset)
 In this repository, we train an artifical neural network on slice-wise tumor segmentation, where each slice is extracted from CT volume scans.
 
-## USAGE
+## USER GUIDE
 This repository aids to download the kits23 dataset and train slice based segmentation neural network with custom parameters
 
 ### Setup
