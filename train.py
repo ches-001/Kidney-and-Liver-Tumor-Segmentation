@@ -74,9 +74,9 @@ def train(
         *,
         batch_size: int=32,
         shuffle: bool=True,
-        num_workers: int=os.cpu_count() // 2,
+        num_workers: int=os.cpu_count(),
         loss_func_id: str="bce",
-        bce_focal_weights: Tuple[float, float]=(0.3, 0.7),
+        bce_focal_weights: Tuple[float, float]=(0.5, 0.5),
         label_smoothing: Optional[float]=None,
         loss_reduction: str="mean",
         alpha: float=0.25,
@@ -201,10 +201,10 @@ if __name__ == "__main__":
     parser.add_argument("--volume_first", type=int, default=int(False), choices=[0, 1], metavar="", help="Load entire volume and then slice")
     parser.add_argument("--batch_size", type=int, default=32, metavar="", help="Model training batch size")
     parser.add_argument("--shuffle", type=int, default=int(True), choices=[0, 1], metavar="", help="Shuffle training data in dataloader for each epoch")
-    parser.add_argument("--num_workers", type=int, default=os.cpu_count()//2, metavar="", help="Number of dataloader workers")
+    parser.add_argument("--num_workers", type=int, default=os.cpu_count(), metavar="", help="Number of dataloader workers")
     parser.add_argument("--loss_func_id", type=str, default="bce", metavar="", help="ID of loss function, one of ('bce', 'focal', 'hybrid')")
-    parser.add_argument("--w_bce", type=float, default=0.3, metavar="", help="Weight value of BCE loss when using hybrid loss")
-    parser.add_argument("--w_focal", type=float, default=0.7, metavar="", help="Weight value of focal loss when using hybrid loss")
+    parser.add_argument("--w_bce", type=float, default=0.5, metavar="", help="Weight value of BCE loss when using hybrid loss")
+    parser.add_argument("--w_focal", type=float, default=0.5, metavar="", help="Weight value of focal loss when using hybrid loss")
     parser.add_argument("--label_smoothing", type=float, default=0.0, metavar="", help="Label smoothing value")
     parser.add_argument("--loss_reduction", type=str, default="mean", metavar="", help="Loss reduction value ('mean' or 'sum')")
     parser.add_argument("--alpha", type=float, default=0.25, metavar="", help="alpha value for focal or hybrid loss")
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_lr", type=float, default=1e-6, metavar="", help="Minimum learning rate before warm restart")
     parser.add_argument("--T_mult", type=int, default=2, metavar="", help="T_0 multiplier for each warm restart")
     parser.add_argument("--xavier_weight_init", type=int, default=int(True), choices=[0, 1], metavar="", help="Xavier weight initialisation")
-    parser.add_argument("--combine_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Combine intractible metrics (Hausdorff distance and Dice Coefficient) with differentiable ones in training pipeline")
+    parser.add_argument("--combine_metrics", type=int, default=int(False), choices=[0, 1], metavar="", help="Combine intractible metrics (Hausdorff distance and Dice Coefficient) with differentiable ones in training pipeline")
     parser.add_argument("--w_hd", type=float, default=0.5, metavar="", help="Weight value of Hausdorff distance when 'combine_metrics' is True")
     parser.add_argument("--w_dc", type=float, default=0.5, metavar="", help="Weight value of Dice coefficients when 'combine_metrics' is True")
     parser.add_argument("--log_train_step", type=int, default=1, metavar="", help="Training info logging steps")
