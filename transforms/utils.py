@@ -24,8 +24,10 @@ def img_resize(
 
 def img_normalize(img: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]: 
     #img size:  (C, H, W)
-    img = (img - img.min()) / (img.max() - img.min())
-    return img    
+    img = img.max() - img
+    image = image - img.min()
+    img = img / img.max()
+    return img
 
 
 def data_augmenter(add_noise: bool=False, **kwargs) -> CustomCompose: 

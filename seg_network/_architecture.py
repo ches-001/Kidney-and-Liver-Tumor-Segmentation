@@ -34,12 +34,12 @@ class EncoderHead(ResNet):
         fmap1 = self.conv1(x)
         x = self.bn1(fmap1)
         x = self.relu(x)
-        x = self.layer1(x)
-        fmap2 = self.layer2(x)
-        fmap3 = self.layer3(fmap2)
-        fmap4 = self.layer4(fmap3)
+        fmap2 = self.layer1(x)
+        fmap3 = self.layer2(fmap2)
+        fmap4 = self.layer3(fmap3)
+        fmap5 = self.layer4(fmap4)
         
-        return fmap1, fmap2, fmap3, fmap4
+        return fmap1, fmap2, fmap3, fmap4, fmap5
     
 
 #______________________________________________________________________________________________
@@ -106,14 +106,13 @@ class SegmentationHead(nn.Module):
     def __init__(
         self, 
         last_fmap_ch: int, 
-        output_channels: int,
-        n_fmap: int=4):
+        output_channels: int):
 
         super(SegmentationHead, self).__init__()
         
         self.last_fmap_ch = last_fmap_ch
         self.output_channels = output_channels
-        self.n_fmap = n_fmap
+        self.n_fmap = 5
 
         self.residual_layers = self._make_layers()
 
@@ -142,14 +141,19 @@ class SegmentationHead(nn.Module):
             out_ch = in_ch // 2
             upsample_scale = 2
 
-            if i == self.n_fmap - 2:
+            if i == self.n_fmap - 3:
                 out_ch = 64
                 upsample_scale = 2
+
+            if i == self.n_fmap - 2:
+                out_ch = 64
+                upsample_scale = 1
 
             if i == self.n_fmap - 1:
                 out_ch = self.output_channels
                 upsample_scale = 2
 
+            print(in_ch, out_ch, upsample_scale)
             layer = SegmentationBlock(
                 input_channels=in_ch, 
                 output_channels=out_ch,

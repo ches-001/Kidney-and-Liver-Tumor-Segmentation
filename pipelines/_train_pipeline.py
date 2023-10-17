@@ -74,8 +74,8 @@ class TrainingPipeline(BasePipeline):
                 self.optimizer.zero_grad()
             
             loss += batch_loss.item()
-            dice_score += batch_dice_score
-            hausdorff += batch_hausdorff
+            dice_score += batch_dice_score.cpu().item()
+            hausdorff += batch_hausdorff.cpu().item()
 
         loss /= (idx + 1)
         dice_score /= (idx + 1)
