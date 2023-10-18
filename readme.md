@@ -28,14 +28,16 @@ Inside the `Kidney-Tumor-Segmentation-KiTS23-dataset-` directory:
 
 5. python download_dataset.py --dataset=kits23
 
-6. python generate_metafile.py --dataset=kits23 # (should be run if 'kits23_metafile.csv' is not available)
+6. python generate_metafile.py --dataset=kits23
 ```
 
 ### Download the LiTS-17 Dataset
+To download the LiTS dataset, you must first create a kaggle account and generate a `kaggle.json` file on your [kaggle account settings](https://www.kaggle.com/settings). Copy and paste the downloaded `kaggle.json` file into the cloned local repository and follow the steps below:
+
 ```python
 1. python download_dataset.py --dataset=lits17
 
-2. python generate_metafile.py --dataset=lits17 # (should be run if 'kits23_metafile.csv' is not available)
+2. python generate_metafile.py --dataset=lits17
 ```
 
 **NOTE :** You can checkout the configuration arguments of the python files in step 8 and 9 via the `-h` flag like so:
