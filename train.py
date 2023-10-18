@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     meta_df = pd.read_csv(METAFILE_PATH)
 
-    plain_img_df = meta_df[meta_df["kidney"] != True]
+    plain_img_df = meta_df[meta_df["organ"] != True]
     plain_img_df = plain_img_df[plain_img_df["tumor"] != True]
     plain_img_df = plain_img_df[plain_img_df["cyst"] != True]
     segment_img_df = meta_df[~meta_df.isin(plain_img_df)].dropna()

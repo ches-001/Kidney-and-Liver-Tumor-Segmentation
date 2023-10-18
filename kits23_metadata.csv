@@ -1,4 +1,4 @@
-img_path,segment_path,case,slice,kidney,tumor,cyst
+img_path,segment_path,case,slice,organ,tumor,cyst
 kits23/dataset/case_00430/imaging.nii.gz,kits23/dataset/case_00430/segmentation.nii.gz,case_00430,slice_00028,True,True,False
 kits23/dataset/case_00430/imaging.nii.gz,kits23/dataset/case_00430/segmentation.nii.gz,case_00430,slice_00029,True,True,False
 kits23/dataset/case_00430/imaging.nii.gz,kits23/dataset/case_00430/segmentation.nii.gz,case_00430,slice_00030,True,True,False
