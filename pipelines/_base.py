@@ -14,7 +14,8 @@ class BasePipeline:
                 xavier_weight_init: bool=True,
                 custom_weight_initializer: Any=None,
                 dirname: str="./saved_model", 
-                filename: str="model.pth.tar"):
+                filename: str="model.pth.tar",
+                dataset_label: Optional[str]=None):
         
         self.device = device
         self.model = model.to(self.device)
@@ -24,6 +25,10 @@ class BasePipeline:
         self.custom_weight_initializer = custom_weight_initializer
         self.dirname = dirname
         self.filename = filename
+        self.dataset_label = dataset_label
+
+        if self.dataset_label is not None:
+            self.dirname = os.path.join(self.dirname, self.dataset_label)
         
         if self.xavier_weight_init:
             if self.custom_weight_initializer is not None:

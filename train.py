@@ -27,13 +27,11 @@ torch.manual_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
 
-METAFILE_PATH = "kits23_metadata.csv"
-
-
 def create_dataset(
         train_df: pd.DataFrame,
         eval_df: pd.DataFrame,
         *,
+        dataset_label: str="kits23",
         img_size: Tuple[int, int]=(224, 224),
         cache_size: int=55_000, 
         train_data_size: float=0.9,
@@ -47,6 +45,7 @@ def create_dataset(
     train_cache_size = (cache_size * train_data_size)
     eval_cache_size = cache_size - train_cache_size
 
+    slice_dim = "first" if dataset_label=="kits23" else "last"
     train_dataset = CTImageDataset(
         train_df, 
         data_transforms, 
@@ -55,6 +54,7 @@ def create_dataset(
         cache_size=train_cache_size,
         binary_segment=True,
         volume_first=volume_first,
+        slice_dim=slice_dim,
     )
 
     eval_dataset = CTImageDataset(
@@ -63,6 +63,7 @@ def create_dataset(
         cache_size=eval_cache_size,
         binary_segment=True,
         volume_first=volume_first,
+        slice_dim=slice_dim,
     )
 
     return train_dataset, eval_dataset
@@ -72,6 +73,7 @@ def train(
         train_dataset: CTImageDataset, 
         eval_dataset: CTImageDataset,
         *,
+        dataset_label: Optional[str]=None,
         batch_size: int=32,
         shuffle: bool=True,
         num_workers: int=os.cpu_count(),
@@ -153,6 +155,7 @@ def train(
         device=os.getenv("DEVICE"), 
         lossfunc=lossfunc,
         xavier_weight_init=xavier_weight_init,
+        dataset_label=dataset_label,
     )
     lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
         pipeline.optimizer, 
@@ -200,6 +203,7 @@ if __name__ == "__main__":
     parser.add_argument("--img_size", type=int, default=224, metavar="", help="Size of image data for (H and W)")
     parser.add_argument("--volume_first", type=int, default=int(False), choices=[0, 1], metavar="", help="Load entire volume and then slice")
     parser.add_argument("--batch_size", type=int, default=32, metavar="", help="Model training batch size")
+    parser.add_argument("--dataset", type=str, default="kits23", choices=["kits23", "lits17"], metavar="", help="Dataset label to specify")
     parser.add_argument("--shuffle", type=int, default=int(True), choices=[0, 1], metavar="", help="Shuffle training data in dataloader for each epoch")
     parser.add_argument("--num_workers", type=int, default=os.cpu_count(), metavar="", help="Number of dataloader workers")
     parser.add_argument("--loss_func_id", type=str, default="bce", metavar="", help="ID of loss function, one of ('bce', 'focal', 'hybrid')")
@@ -229,10 +233,9 @@ if __name__ == "__main__":
     parser.add_argument("--plot_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Plots metrics if True")
     parser.add_argument("--save_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Save metrics if True")
 
-
-
-
     args = parser.parse_args()
+
+    METAFILE_PATH = "kits23_metadata.csv" if args.dataset == "kits23" else "lits17_metadata.csv"
 
     meta_df = pd.read_csv(METAFILE_PATH)
 
@@ -258,6 +261,7 @@ if __name__ == "__main__":
     train_dataset, eval_dataset = create_dataset(
         train_df, 
         eval_df, 
+        dataset_label=args.dataset,
         img_size=(args.img_size, args.img_size), 
         cache_size=args.cache_size, 
         train_data_size=args.train_size, 
@@ -267,6 +271,7 @@ if __name__ == "__main__":
     train(
         train_dataset, 
         eval_dataset, 
+        dataset_label=args.dataset,
         batch_size=args.batch_size, 
         shuffle=bool(args.shuffle),
         num_workers=args.num_workers,

@@ -23,10 +23,7 @@ def img_resize(
 
 
 def img_normalize(img: Union[torch.Tensor, np.ndarray]) -> Union[torch.Tensor, np.ndarray]: 
-    #img size:  (C, H, W)
-    img = img.max() - img
-    img = img - img.min()
-    img = img / img.max()
+    img = (img - img.min()) / (img.max() - img.min())
     return img
 
 

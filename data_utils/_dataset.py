@@ -17,8 +17,10 @@ class CTImageDataset(Dataset):
             img_size: Tuple=(256, 256),
             cache_size: int=1_000,
             binary_segment: bool=True,
-            volume_first: bool=False):
+            volume_first: bool=False,
+            slice_dim: str="first"):
         
+        assert slice_dim in ["first", "last"], f"slice_dim must be one of (first, last), got {slice_dim}"
         self.meta_df = meta_df
         self.data_transform = data_transform
         self.data_transform_kwargs = data_transform_kwargs
@@ -26,6 +28,7 @@ class CTImageDataset(Dataset):
         self.cache_size = cache_size
         self.binary_segment = binary_segment
         self.volume_first = volume_first
+        self.slice_dim = slice_dim
         self.cache_memory = Manager().dict()
 
     def __len__(self) -> int:
@@ -46,12 +49,20 @@ class CTImageDataset(Dataset):
             if self.volume_first:
                 # loading the entire volume from disk and indexing the slice 
                 # is faster but memory inefficient
-                img = nib.load(img_path).get_fdata(caching="unchanged")[slice_idx]
-                segment = nib.load(segment_path).get_fdata(caching="unchanged")[slice_idx]
+                if self.slice_dim == "first":
+                    img = nib.load(img_path).get_fdata(caching="unchanged")[slice_idx]
+                    segment = nib.load(segment_path).get_fdata(caching="unchanged")[slice_idx]
+                else:
+                    img = nib.load(img_path).get_fdata(caching="unchanged")[:, :, slice_idx]
+                    segment = nib.load(segment_path).get_fdata(caching="unchanged")[:, :, slice_idx]
             else:
                 # loading only slice from disk is slow but memory efficient
-                img = nib.load(img_path).dataobj[slice_idx]
-                segment = nib.load(segment_path).dataobj[slice_idx]
+                if self.slice_dim == "first":
+                    img = nib.load(img_path).dataobj[slice_idx]
+                    segment = nib.load(segment_path).dataobj[slice_idx]
+                else:
+                    img = nib.load(img_path).dataobj[:, :, slice_idx]
+                    segment = nib.load(segment_path).dataobj[:, :, slice_idx]
 
             if not img.flags["WRITEABLE"]:
                 img = img.copy()
