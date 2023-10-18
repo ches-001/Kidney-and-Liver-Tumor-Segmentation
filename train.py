@@ -88,6 +88,7 @@ def train(
         num_classes: int=3,
         block: Callable=resnet.BasicBlock,
         block_layers: List=[3, 4, 6, 3],
+        decay_lr: bool=True,
         T_0: int=20,
         epochs: int=140,
         lr: float=2e-4,
@@ -157,13 +158,15 @@ def train(
         xavier_weight_init=xavier_weight_init,
         dataset_label=dataset_label,
     )
-    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        pipeline.optimizer, 
-        T_0=T_0, 
-        T_mult=T_mult, 
-        eta_min=min_lr,
-        verbose=verbose
-    )
+
+    if decay_lr:
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            pipeline.optimizer, 
+            T_0=T_0, 
+            T_mult=T_mult, 
+            eta_min=min_lr,
+            verbose=verbose
+        )
 
     best_score = -np.inf
 
@@ -186,7 +189,8 @@ def train(
             pipeline.save_model()
             print(f"model saved at epoch: {epoch} with score value: {eval_score}")
 
-        lr_scheduler.step()
+        if decay_lr:
+            lr_scheduler.step()
 
     if plot_metrics:
         pipeline.plot_metrics()
@@ -218,6 +222,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_classes", type=int, default=3, metavar="", help="Number of segmentation classes")
     parser.add_argument("--block", type=str, default="BasicBlock", metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
     parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
+    parser.add_argument("--decay_lr", type=int, default=int(True), metavar="", help="Decays learning rate via cosine annealing + warm restart")
     parser.add_argument("--T_0", type=int, default=20, metavar="", help="Initial number of iterations for learning rate decay before warm restart")
     parser.add_argument("--epochs", type=int, default=140, metavar="", help="Number of training epochs / cycles")
     parser.add_argument("--lr", type=float, default=2e-4, metavar="", help="Learning rate")
@@ -286,6 +291,7 @@ if __name__ == "__main__":
         num_classes=args.num_classes,
         block=getattr(resnet, args.block),
         block_layers=[int(i) for i in args.block_layers.split(",")],
+        decay_lr=bool(args.decay_lr),
         T_0=args.T_0,
         epochs=args.epochs,
         lr=args.lr,
