@@ -228,7 +228,6 @@ if __name__ == "__main__":
     parser.add_argument("--gamma", type=float, default=2.0, metavar="", help="gamma value for focal or hybrid loss")
     parser.add_argument("--input_channels", type=int, default=1, metavar="", help="Model input channels")
     parser.add_argument("--last_fmap_channels", type=int, default=512, metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
-    parser.add_argument("--num_classes", type=int, default=3, metavar="", help="Number of segmentation classes")
     parser.add_argument("--block", type=str, default="BasicBlock", metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
     parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
     parser.add_argument("--decay_lr", type=int, default=int(True), metavar="", help="Decays learning rate via cosine annealing + warm restart")
@@ -297,7 +296,7 @@ if __name__ == "__main__":
         gamma=args.gamma,
         input_channels=args.input_channels,
         last_fmap_channels=args.last_fmap_channels,
-        num_classes=args.num_classes,
+        num_classes=3 if args.dataset == "kits23" else 2,
         block=getattr(resnet, args.block),
         block_layers=[int(i) for i in args.block_layers.split(",")],
         decay_lr=bool(args.decay_lr),
