@@ -34,7 +34,7 @@ def create_dataset(
         train_df: pd.DataFrame,
         eval_df: pd.DataFrame,
         *,
-        img_size: Tuple[int, int]=(256, 256),
+        img_size: Tuple[int, int]=(224, 224),
         cache_size: int=55_000, 
         train_data_size: float=0.9,
         transforms_kwargs: Dict[str, Any]={"add_noise": False},
@@ -213,6 +213,7 @@ if __name__ == "__main__":
     parser.add_argument("--last_fmap_channels", type=int, default=512, metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
     parser.add_argument("--num_classes", type=int, default=3, metavar="", help="Number of segmentation classes")
     parser.add_argument("--block", type=str, default="BasicBlock", metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
+    parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
     parser.add_argument("--T_0", type=int, default=20, metavar="", help="Initial number of iterations for learning rate decay before warm restart")
     parser.add_argument("--epochs", type=int, default=140, metavar="", help="Number of training epochs / cycles")
     parser.add_argument("--lr", type=float, default=2e-4, metavar="", help="Learning rate")
@@ -220,7 +221,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_lr", type=float, default=1e-6, metavar="", help="Minimum learning rate before warm restart")
     parser.add_argument("--T_mult", type=int, default=2, metavar="", help="T_0 multiplier for each warm restart")
     parser.add_argument("--xavier_weight_init", type=int, default=int(True), choices=[0, 1], metavar="", help="Xavier weight initialisation")
-    parser.add_argument("--combine_metrics", type=int, default=int(False), choices=[0, 1], metavar="", help="Combine intractible metrics (Hausdorff distance and Dice Coefficient) with differentiable ones in training pipeline")
+    parser.add_argument("--combine_metrics", type=int, default=int(False), choices=[0, 1], metavar="", help="Combine Hausdorff distance and Dice Coefficient with the main loss function (Hausdorff distance is non-differentiable and will only serve as a constant)")
     parser.add_argument("--w_hd", type=float, default=0.5, metavar="", help="Weight value of Hausdorff distance when 'combine_metrics' is True")
     parser.add_argument("--w_dc", type=float, default=0.5, metavar="", help="Weight value of Dice coefficients when 'combine_metrics' is True")
     parser.add_argument("--log_train_step", type=int, default=1, metavar="", help="Training info logging steps")
@@ -242,7 +243,7 @@ if __name__ == "__main__":
 
     plain_img_df.index = range(0, len(plain_img_df))
     segment_img_df.index = range(0, len(segment_img_df))
-    data_df = pd.concat([segment_img_df, plain_img_df.sample(frac=15_000/plain_img_df.shape[0])], axis=0)
+    data_df = pd.concat([segment_img_df, plain_img_df.sample(frac=10_000/plain_img_df.shape[0])], axis=0)
 
     data_df = data_df.sample(n=np.clip(args.total_samples, a_min=0, a_max=50_000))
     data_df.index = range(0, data_df.shape[0])
@@ -279,6 +280,7 @@ if __name__ == "__main__":
         last_fmap_channels=args.last_fmap_channels,
         num_classes=args.num_classes,
         block=getattr(resnet, args.block),
+        block_layers=[int(i) for i in args.block_layers.split(",")],
         T_0=args.T_0,
         epochs=args.epochs,
         lr=args.lr,

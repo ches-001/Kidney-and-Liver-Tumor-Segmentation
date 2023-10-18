@@ -54,24 +54,26 @@ class TrainingPipeline(BasePipeline):
         loss, dice_score, hausdorff = 0, 0, 0
         
         for idx, (images, gt_masks) in tqdm.tqdm(enumerate(dataloader), total=pbar_total):
+            if mode == "train":
+                self.model.zero_grad()
+
             images = images.to(self.device)                          # shape: (N, n_channels, H, W)
             gt_masks = gt_masks.to(self.device, dtype=torch.float32) # shape: (N, n_channels, H, W)    
                         
             pred_masks = self.model(images)
             batch_loss = self.lossfunc(pred_masks, gt_masks)
-            batch_dice_score = dice_coeff(pred_masks, gt_masks)
+            batch_dice_score = dice_coeff(pred_masks.round(), gt_masks)
             batch_hausdorff = hausdorff_distance(pred_masks, gt_masks)
 
             if self.combine_metrics:
+                rdice_score = dice_coeff(pred_masks, gt_masks)
                 batch_loss = (
-                    (1 + batch_loss) * 
-                    (1 - (self.w_hd * (1 - batch_hausdorff)) + (self.w_dc * batch_dice_score))
+                    batch_loss + (1 - ((self.w_hd * (1 - batch_hausdorff)) + (self.w_dc * rdice_score)))
                 )
             
             if mode == "train":
                 batch_loss.backward()
                 self.optimizer.step()
-                self.optimizer.zero_grad()
             
             loss += batch_loss.item()
             dice_score += batch_dice_score.cpu().item()
