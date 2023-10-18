@@ -114,7 +114,7 @@ async def async_record(
                 args = (_case, imaging_path, segmentation_path, _slice, slice_dim, volume_first)
                 tasks.append(record_case_coroutine(args, q, semaphore))
 
-    elif dataset_label == "lits23":
+    elif dataset_label == "lits17":
         slice_dim = "last"
         segmentation_paths = glob.glob(f"{dataset_path}*/segmentation-*.nii")
         segmentation_paths = sorted(segmentation_paths, key=lambda i : int(i.split("-")[-1].replace(".nii", "")))
