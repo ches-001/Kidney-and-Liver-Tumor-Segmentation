@@ -7,7 +7,7 @@ This repository aids to download the KiTS-23 and LiTS-17 datasets and train slic
 ### Setup Repository
 To setup the repository on your local device, firstly:
 ```python
-1. git clone https://github.com/ches-001/Kidney-Tumor-Segmentation-KiTS23-dataset-
+1. git clone https://github.com/ches-001/Kidney-and-Liver-Tumor-Segmentation
 
 2. cd Kidney-Tumor-Segmentation-KiTS23-dataset-
 
@@ -16,7 +16,7 @@ To setup the repository on your local device, firstly:
 
 ### Download the KiTS-23 Dataset
 
-Inside the `Kidney-Tumor-Segmentation-KiTS23-dataset-` directory:
+Inside the `Kidney-and-Liver-Tumor-Segmentation` directory:
 ```python
 1. git clone https://github.com/neheller/kits23
 
