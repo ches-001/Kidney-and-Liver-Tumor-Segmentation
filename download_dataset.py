@@ -1,4 +1,4 @@
-import asyncio, tqdm, os, argparse, json
+import asyncio, tqdm, os, argparse
 from urllib import error
 from kits23 import TRAINING_CASE_NUMBERS
 from kits23.download import download_dataset, download_case, get_destination, DST_PTH
