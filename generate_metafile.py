@@ -55,8 +55,8 @@ def record_case(
         segmentation_path: str,
         _slice: int, 
         slice_dim: str,
-        q: CaseQueue, 
-        volume_first: bool=False):
+        volume_first: bool=False,
+        q: Optional[CaseQueue]=None, ):
     
     assert slice_dim in ["first", "last"], f"slice_dim must be one of (first, last), got {slice_dim}"
     
@@ -67,9 +67,9 @@ def record_case(
             img_slice = nib.load(segmentation_path).get_fdata(caching="unchanged")[:, :, _slice]
     else:
         if slice_dim == "first":
-            img_slice = nib.load(segmentation_path)[_slice]
+            img_slice = nib.load(segmentation_path).dataobj[_slice]
         else:
-            img_slice = nib.load(segmentation_path)[:, :, _slice]
+            img_slice = nib.load(segmentation_path).dataobj[:, :, _slice]
     kidney, tumor, cyst = False, False, False
     
     uids = np.unique(img_slice)
@@ -77,7 +77,8 @@ def record_case(
     if 2 in uids: tumor = True
     if 3 in uids: cyst = True
 
-    q.enqueue(imaging_path, segmentation_path, _case, _slice, kidney, tumor, cyst)
+    if q is not None:
+        q.enqueue(imaging_path, segmentation_path, _case, _slice, kidney, tumor, cyst)
 
 
 async def record_case_coroutine(args: Tuple, q: CaseQueue, semaphore: asyncio.Semaphore):
