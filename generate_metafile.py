@@ -11,7 +11,7 @@ class CaseQueue:
         self.segment_paths = []
         self.cases = []
         self.slices = []
-        self.kidneys = []
+        self.organs = []
         self.tumors = []
         self.cysts =  []
 
@@ -21,7 +21,7 @@ class CaseQueue:
             segment_path: str, 
             case: str, 
             slice: int, 
-            kidney: bool, 
+            organ: bool, 
             tumor: bool, 
             cyst: bool):
         
@@ -29,7 +29,7 @@ class CaseQueue:
         self.segment_paths.append(segment_path)
         self.cases.append(case)
         self.slices.append(f"slice_{str(slice).zfill(5)}")
-        self.kidneys.append(kidney)
+        self.organs.append(organ)
         self.tumors.append(tumor)
         self.cysts.append(cyst)
 
@@ -39,7 +39,7 @@ class CaseQueue:
         df["segment_path"] = self.segment_paths
         df["case"] = self.cases
         df["slice"] = self.slices
-        df["kidney"] = self.kidneys
+        df["organ"] = self.organs
         df["tumor"] = self.tumors
         df["cyst"] = self.cysts
 
@@ -55,6 +55,7 @@ def record_case(
         segmentation_path: str,
         _slice: int, 
         slice_dim: str,
+        dataset_label: str,
         volume_first: bool=False,
         q: Optional[CaseQueue]=None, ):
     
@@ -70,15 +71,21 @@ def record_case(
             img_slice = nib.load(segmentation_path).dataobj[_slice]
         else:
             img_slice = nib.load(segmentation_path).dataobj[:, :, _slice]
-    kidney, tumor, cyst = False, False, False
+    organ, tumor, cyst = False, False, False
     
     uids = np.unique(img_slice)
-    if 1 in uids: kidney = True
-    if 2 in uids: tumor = True
-    if 3 in uids: cyst = True
+
+    if dataset_label == "kits23":
+        if 1 in uids: organ = True
+        if 2 in uids: tumor = True
+        if 3 in uids: cyst = True
+
+    if dataset_label == "lits17":
+        if 1 in uids: tumor = True
+        if 2 in uids: organ = True
 
     if q is not None:
-        q.enqueue(imaging_path, segmentation_path, _case, _slice, kidney, tumor, cyst)
+        q.enqueue(imaging_path, segmentation_path, _case, _slice, organ, tumor, cyst)
 
 
 async def record_case_coroutine(args: Tuple, q: CaseQueue, semaphore: asyncio.Semaphore):
@@ -112,7 +119,7 @@ async def async_record(
             nslices = nib.load(segmentation_path).dataobj.shape[0]
 
             for _slice in range(nslices):
-                args = (_case, imaging_path, segmentation_path, _slice, slice_dim, volume_first)
+                args = (_case, imaging_path, segmentation_path, _slice, slice_dim, dataset_label, volume_first)
                 tasks.append(record_case_coroutine(args, q, semaphore))
 
     elif dataset_label == "lits17":
@@ -131,7 +138,7 @@ async def async_record(
             nslices = nib.load(segmentation_path).dataobj.shape[-1]
 
             for _slice in range(nslices):
-                args = (_case, imaging_path, segmentation_path, _slice, slice_dim, volume_first)
+                args = (_case, imaging_path, segmentation_path, _slice, slice_dim, dataset_label, volume_first)
                 tasks.append(record_case_coroutine(args, q, semaphore))
 
         print("scan cases...")

@@ -18,7 +18,8 @@ class CTImageDataset(Dataset):
             cache_size: int=1_000,
             binary_segment: bool=True,
             volume_first: bool=False,
-            slice_dim: str="first"):
+            slice_dim: str="first",
+            label_ids: Dict[str, int]={"organ": 1, "tumor": 2, "cyst": 3}):
         
         assert slice_dim in ["first", "last"], f"slice_dim must be one of (first, last), got {slice_dim}"
         self.meta_df = meta_df
@@ -29,6 +30,7 @@ class CTImageDataset(Dataset):
         self.binary_segment = binary_segment
         self.volume_first = volume_first
         self.slice_dim = slice_dim
+        self.label_ids = label_ids
         self.cache_memory = Manager().dict()
 
     def __len__(self) -> int:
@@ -103,10 +105,10 @@ class CTImageDataset(Dataset):
         segment = segment.unsqueeze(dim=0).to(dtype=torch.float32)
 
         if self.binary_segment:
-            kidney_label = 1; tumor_label = 2; cyst_label = 3
-            binary_segment = torch.zeros((3, *self.img_size), dtype=segment.dtype)
+            n_labels = len(self.label_ids)
+            binary_segment = torch.zeros((n_labels, *self.img_size), dtype=segment.dtype)
 
-            for i, label in enumerate([kidney_label, tumor_label, cyst_label]):
+            for i, label in enumerate(self.label_ids.values()):
                 template = segment.clone()
                 template[template != label] = 0
                 template[template == label] = 1

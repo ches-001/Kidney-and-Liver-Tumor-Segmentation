@@ -46,6 +46,13 @@ def create_dataset(
     eval_cache_size = cache_size - train_cache_size
 
     slice_dim = "first" if dataset_label=="kits23" else "last"
+
+    if dataset_label == "kits23":
+        label_ids = {"organ": 1, "tumor": 2, "cyst": 3}
+        
+    elif dataset_label == "lits17":
+        label_ids = {"tumor": 1, "organ": 2}
+
     train_dataset = CTImageDataset(
         train_df, 
         data_transforms, 
@@ -55,6 +62,7 @@ def create_dataset(
         binary_segment=True,
         volume_first=volume_first,
         slice_dim=slice_dim,
+        label_ids=label_ids,
     )
 
     eval_dataset = CTImageDataset(
@@ -64,6 +72,7 @@ def create_dataset(
         binary_segment=True,
         volume_first=volume_first,
         slice_dim=slice_dim,
+        label_ids=label_ids,
     )
 
     return train_dataset, eval_dataset
