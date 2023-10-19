@@ -202,7 +202,8 @@ def train(
             lr_scheduler.step()
 
     if plot_metrics:
-        pipeline.plot_metrics()
+        pipeline.plot_metrics(mode="train")
+        pipeline.plot_metrics(mode="eval")
 
     if save_metrics:
         pipeline.save_metrics()
