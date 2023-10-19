@@ -68,7 +68,7 @@ class TrainingPipeline(BasePipeline):
             if self.combine_metrics:
                 rdice_score = dice_coeff(pred_masks, gt_masks)
                 batch_loss = (
-                    batch_loss + (1 - ((self.w_hd * (1 - batch_hausdorff)) + (self.w_dc * rdice_score)))
+                    (1 + batch_loss) * (1 - ((self.w_hd * (1 - batch_hausdorff)) + (self.w_dc * rdice_score)))
                 )
             
             if mode == "train":
