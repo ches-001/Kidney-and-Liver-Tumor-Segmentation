@@ -149,11 +149,11 @@ def train(
         raise ValueError("loss_func_id can only be one of 'hybrid', 'focal', 'bce'")
 
     model = SegmentationNet(
-        input_channels, 
+        input_channels,
         num_classes=num_classes,
         block=block,
         block_layers=block_layers,
-        last_fmap_ch=last_fmap_channels,
+        last_fmap_channels=last_fmap_channels,
     )
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     pipeline = TrainingPipeline(
