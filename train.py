@@ -228,7 +228,7 @@ if __name__ == "__main__":
     parser.add_argument("--alpha", type=float, default=0.25, metavar="", help="alpha value for focal or hybrid loss")
     parser.add_argument("--gamma", type=float, default=2.0, metavar="", help="gamma value for focal or hybrid loss")
     parser.add_argument("--input_channels", type=int, default=1, metavar="", help="Model input channels")
-    parser.add_argument("--last_fmap_channels", type=int, default=512, metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
+    parser.add_argument("--last_fmap_channels", type=int, default=512, choices=[512, 2048], metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
     parser.add_argument("--block", type=str, default="BasicBlock", choices=["BasicBlock", "Bottleneck"], metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
     parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
     parser.add_argument("--decay_lr", type=int, default=int(True), metavar="", help="Decays learning rate via cosine annealing + warm restart")

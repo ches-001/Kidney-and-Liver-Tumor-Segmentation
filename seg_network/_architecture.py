@@ -142,7 +142,7 @@ class SegmentationHead(nn.Module):
             upsample_scale = 2
 
             if i == self.n_fmap - 3:
-                out_ch = 64
+                out_ch = in_ch // 2 if self.last_fmap_ch == 2048 else 64
                 upsample_scale = 2
 
             if i == self.n_fmap - 2:
