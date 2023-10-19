@@ -12,7 +12,7 @@ class EncoderHead(ResNet):
         self, 
         input_channels: int, 
         block: Callable=BasicBlock, 
-        block_layers: Iterable[int]=[2, 2, 2, 2]):
+        block_layers: Iterable[int]=[3, 4, 6, 3]):
 
         super(EncoderHead, self).__init__(block, block_layers)
         self.block = block
