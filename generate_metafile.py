@@ -156,16 +156,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     n_concurrency = args.n_concurrency
     volume_first = bool(args.volume_first)
+    csv_dir = "metafiles"
 
     if args.dataset == "kits23":
         dataset_path = "kits23/dataset/"
-        csv_path="kits23_metadata.csv"
+        csv_file="kits23_metadata.csv"
 
     elif args.dataset == "lits17":
         dataset_path = "lits17/dataset/"
-        csv_path="lits17_metadata.csv"
+        csv_file="lits17_metadata.csv"
 
-
+    os.makedirs(csv_dir, exist_ok=True)
+    csv_path = os.path.join(csv_dir, csv_file)
     if not os.path.isfile(csv_path):
         q = CaseQueue()
         asyncio.run(
