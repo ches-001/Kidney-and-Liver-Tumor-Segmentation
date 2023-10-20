@@ -233,7 +233,7 @@ if __name__ == "__main__":
     parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
     parser.add_argument("--decay_lr", type=int, default=int(True), metavar="", help="Decays learning rate via cosine annealing + warm restart")
     parser.add_argument("--T_0", type=int, default=20, metavar="", help="Initial number of iterations for learning rate decay before warm restart")
-    parser.add_argument("--epochs", type=int, default=140, metavar="", help="Number of training epochs / cycles")
+    parser.add_argument("--epochs", type=int, default=60, metavar="", help="Number of training epochs / cycles")
     parser.add_argument("--lr", type=float, default=2e-4, metavar="", help="Learning rate")
     parser.add_argument("--weight_decay", type=float, default=0.0, metavar="", help="Model weight decay value")
     parser.add_argument("--min_lr", type=float, default=1e-6, metavar="", help="Minimum learning rate before warm restart")
