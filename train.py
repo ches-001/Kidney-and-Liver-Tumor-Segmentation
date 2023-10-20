@@ -240,7 +240,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_lr", type=float, default=1e-6, metavar="", help="Minimum learning rate before warm restart")
     parser.add_argument("--T_mult", type=int, default=2, metavar="", help="T_0 multiplier for each warm restart")
     parser.add_argument("--xavier_weight_init", type=int, default=int(True), choices=[0, 1], metavar="", help="Xavier weight initialisation")
-    parser.add_argument("--combine_metrics", type=int, default=int(False), choices=[0, 1], metavar="", help="Combine Hausdorff distance and Dice Coefficient with the main loss function (Hausdorff distance is non-differentiable and will only serve as a constant)")
+    parser.add_argument("--combine_metrics", type=int, default=int(True), choices=[0, 1], metavar="", help="Combine Hausdorff distance and Dice Coefficient with the main loss function (Hausdorff distance is non-differentiable and will only serve as a constant)")
     parser.add_argument("--w_hd", type=float, default=0.5, metavar="", help="Weight value of Hausdorff distance when 'combine_metrics' is True")
     parser.add_argument("--w_dc", type=float, default=0.5, metavar="", help="Weight value of Dice coefficients when 'combine_metrics' is True")
     parser.add_argument("--log_train_step", type=int, default=1, metavar="", help="Training info logging steps")
