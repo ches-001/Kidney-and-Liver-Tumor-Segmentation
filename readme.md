@@ -75,6 +75,6 @@ In the KiTS-23 set, the objective / cost function was the focal loss metric, the
 ### LiTS-17 Results
 In the LiTS-17 set, the objective / cost function was a combination of the binary cross entropy loss, dice loss and the hausdorff distance metric, the training and evaluation performance can be observed below:
 
-![liver_tumor_segmentation](https://github.com/ches-001/Kidney-and-Liver-Tumor-Segmentation/assets/70514310/f635ba77-3969-4d34-8d79-bf152364471b)
+![liver_tumor_segmentation](https://ibb.co/Y02thg4)
 
 
