@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    METAFILE_PATH = "metafiles/kits23_metadata.csv" if args.dataset == "kits23" else "metafiles/lits17_metadata.csv"
+    METAFILE_PATH = f"metafiles/{args.dataset}_metadata.csv"
 
     meta_df = pd.read_csv(METAFILE_PATH)
 
