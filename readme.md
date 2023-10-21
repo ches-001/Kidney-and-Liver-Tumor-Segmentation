@@ -63,15 +63,3 @@ python train.py
 The `train.py` file has various CLI / configuration arguments, you can check them all out via the `-h` flag. To specify the dataset to train on, you can use the `--dataset` argument, similar to the download script.
 
 **NOTE :** The trained model is stored in the `saved_model` directory in their respective subfolders, alongside a csv file corresponding to model performance during the course of training.
-
-## Performance Results
-
-### KiTS-23 Results
-In the KiTS-23 set, the objective / cost function was the focal loss metric, the training and evaluation performance can be observed below:
-
-![kidney_tumor_segmentation](https://i.ibb.co/ZxBr3kG/kidney-tumor-segmentation.png)
-
-### LiTS-17 Results
-In the LiTS-17 set, the objective / cost function was a combination of the binary cross entropy loss, dice loss and the hausdorff distance metric, the training and evaluation performance can be observed below:
-
-![liver_tumor_segmentation](https://i.ibb.co/Rj2Cc8G/liver-tumor-segmentation.png)
