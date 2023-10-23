@@ -210,7 +210,7 @@ def train(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f"Train Segmentation Network")
+    parser = argparse.ArgumentParser(description=f"Train Tumor Segmentation Network")
     parser.add_argument("--plain_samples", type=int, default=10_000, metavar="", help="There are 32,989 out of 95.221 and 19,163 out of 58,638 samples with atleast one segmented region for the kits23 and lits17 dataset respectively, this argument controls the number of samples without segments, added to these sample to compile the training and evaluation datasets")
     parser.add_argument("--total_samples", type=int, default=26_000, metavar="", help="Total number of samples to split as train and test. (Values beyond plain_samples+32,989 will be clamped to plain_samples+32,989 for the kits23 dataset, and values beyond plain_samples+19,163 will be clamped to plain_samples+19,163 for the lits17 dataset)")
     parser.add_argument("--train_size", type=float, default=0.9, metavar="", help="% Train data size")
