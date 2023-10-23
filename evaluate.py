@@ -98,8 +98,6 @@ def evaluate(
         output = model(img)
         output = output.round()
 
-        #print((output.squeeze()[0]==1).sum(), (output.squeeze()[1]==1).sum(), (output.squeeze()[2]==1).sum())
-
     dice_score, hausdorff = None, None
     if torch.is_tensor(target):
         target = target.to(device=os.getenv("DEVICE"))
@@ -108,7 +106,6 @@ def evaluate(
         dice_score = round(dice_score, 4)
         hausdorff = round(hausdorff, 4)
 
-    #print(dice_score, hausdorff)
     output = output.squeeze(dim=0)
     return output.cpu(), dice_score, hausdorff
 
