@@ -54,11 +54,11 @@ if __name__ == "__main__":
     # Create labels for the entry fields
     ct_str = tk.StringVar()
     ct_field_label = tk.Label(window)
-    ask_ct_button = tk.Button(window, text="Select CT volume Directory", command=on_ask_ct_file)
+    ask_ct_button = tk.Button(window, text="Select CT volume Path", command=on_ask_ct_file)
 
     target_str = tk.StringVar()
     target_field_label = tk.Label(window)
-    ask_target_button = tk.Button(window, text="Select Output Directory", command=on_ask_target_file)
+    ask_target_button = tk.Button(window, text="Select Output Path", command=on_ask_target_file)
 
     model_type_label = tk.Label(window, text="Select Model Type:")
     model_type_options = ["kidney", "liver"]
