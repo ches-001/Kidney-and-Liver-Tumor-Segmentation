@@ -216,7 +216,6 @@ if __name__ == "__main__":
     parser.add_argument("case_path", type=str, metavar="", help="Path to case volume")
     parser.add_argument("model_type", type=str, choices=["kidney", "liver"], metavar="", help="Specify the model type based on the dataset it was trained on ('kidney' or 'liver')")
     parser.add_argument("slice_dim", type=str, choices=["first", "last"], metavar="", help="Specify what axes of the volume corresponds to slice axes ('first' or 'last')")
-
     parser.add_argument("--slice_idx", default="", type=str, metavar="", help="if provided, inference is run on slice rather than the entire volume")
     parser.add_argument("--segment_path", default="", type=str, metavar="", help="Path to corresponding segmentation volume of case")
     parser.add_argument("--volume_first", type=int, default=int(False), choices=[0, 1], metavar="", help="Load entire volume and then slice")
@@ -225,7 +224,7 @@ if __name__ == "__main__":
     parser.add_argument("--last_fmap_channels", type=int, default=512, choices=[512, 2048], metavar="", help="Number of channels for last feature map of encoder (2048 for resnet50 and above)")
     parser.add_argument("--block", type=str, default="BasicBlock", choices=["BasicBlock", "Bottleneck"], metavar="", help="Block type for encoder backbone ('BasicBlock' or 'Bottleneck')")
     parser.add_argument("--block_layers", type=str, default="3,4,6,3", metavar="", help="Number of layers per block")
-    args = parser.parse_args()    
+    args = parser.parse_args()
 
     MODEL_PATH, NUM_CLASSES = (
         ("saved_model/kits23/model.pth.tar", 3) 
