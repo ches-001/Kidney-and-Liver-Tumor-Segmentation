@@ -247,8 +247,8 @@ if __name__ == "__main__":
     model.eval()
 
     # Run:
-    #"python evaluate kits23/dataset/case_00456/imaging.nii.gz" kidney first
-    #"python evaluate lits17/dataset/volume-24.nii" liver last --segment_path="lits17/dataset/segmentation-24.nii"
+    # python evaluate.py "kits23/dataset/case_00456/imaging.nii.gz" kidney first --segment_path="kits23/dataset/case_00456/segmentation.nii.gz"
+    # python evaluate.py "lits17/dataset/volume-24.nii" liver last --segment_path="lits17/dataset/segmentation-24.nii"
 
     if args.slice_idx:
         output, dice_score, hausdorff = evaluate_slice(
